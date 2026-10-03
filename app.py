@@ -1,6 +1,6 @@
 import os
 import tempfile
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, send_from_directory
 import yt_dlp
 
 app = Flask(__name__)
@@ -16,19 +16,16 @@ def format_duration(seconds):
     return f"{h:02d}:{m:02d}:{s:02d}" if h > 0 else f"{m:02d}:{s:02d}"
 
 def get_ytdl_options(extra_opts=None):
-    """Generates options that bypass YouTube bot-detection blocks."""
     opts = {
         'quiet': True,
         'no_warnings': True,
         'noplaylist': True,
-        # Key fix: tell yt-dlp to pretend to be an Android app or mobile web client
         'extractor_args': {
             'youtube': {
                 'player_client': ['android', 'mweb']
             }
         }
     }
-    # Attach cookies file if present in the folder
     if os.path.exists(COOKIES_PATH):
         opts['cookiefile'] = COOKIES_PATH
 
@@ -36,6 +33,16 @@ def get_ytdl_options(extra_opts=None):
         opts.update(extra_opts)
     return opts
 
+# --- PWA Static File Routes ---
+@app.route('/manifest.json')
+def manifest():
+    return send_from_directory('templates', 'manifest.json')
+
+@app.route('/sw.js')
+def service_worker():
+    return send_from_directory('.', 'sw.js')
+
+# --- Main App Routes ---
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -122,5 +129,5 @@ def download():
         return jsonify({'error': f'Download failed: {str(e)}'}), 500
 
 if __name__ == '__main__':
-    print("🚀 Server started! Open http://127.0.0.1:5000 in your browser.")
-    app.run(debug=True, port=5000)
+    print("🚀 Server started! Binding to all local network interfaces on port 5000.")
+    app.run(host='0.0.0.0', port=5000, debug=True)

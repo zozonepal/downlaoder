@@ -3,7 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MediaFetch.io - YouTube Downloader</title>
+  <title>MediaFetch.io - YouTube Downloader PWA</title>
+  
+  <!-- PWA Headers -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0b1120">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -25,8 +32,7 @@
       <h1 class="text-2xl font-bold tracking-tight">MediaFetch<span class="text-red-500">.io</span></h1>
     </div>
     <div class="text-sm text-slate-400 space-x-6">
-      <a href="#" class="hover:text-white transition">How it works</a>
-      <a href="#" class="hover:text-white transition">Python Backend Setup</a>
+      <a href="#" class="hover:text-white transition">PWA Mobile Ready</a>
     </div>
   </header>
 
@@ -93,7 +99,6 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Video Formats -->
         <div>
           <h3 class="text-xs font-bold text-slate-400 tracking-wider uppercase mb-3 flex items-center">
             <i class="fa-solid fa-video text-blue-400 mr-2"></i> Video Formats (MP4)
@@ -101,7 +106,6 @@
           <div id="videoList" class="space-y-2.5"></div>
         </div>
 
-        <!-- Audio Formats -->
         <div>
           <h3 class="text-xs font-bold text-slate-400 tracking-wider uppercase mb-3 flex items-center">
             <i class="fa-solid fa-music text-green-400 mr-2"></i> Audio Only (MP3/M4A)
@@ -112,9 +116,13 @@
     </div>
   </div>
 
-  <!-- JavaScript Integration -->
   <script>
     let currentVideoUrl = "";
+
+    // Service Worker Registration for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js');
+    }
 
     document.getElementById('pasteBtn').addEventListener('click', async () => {
       try {
@@ -153,7 +161,7 @@
         renderVideoInfo(data);
       } catch (err) {
         showLoader(false);
-        showError('Could not connect to the backend server. Make sure Python is running.');
+        showError('Could not connect to backend server. Make sure Python is running.');
       }
     });
 
